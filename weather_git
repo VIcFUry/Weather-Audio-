@@ -1,0 +1,28 @@
+#! /bin/bash
+
+        #Open Weather Map Access you will need to change:
+                APPID="dddddddddddddddddddddddddddddddd"	# Add your Key here
+                id="134567"                             	# Add your locaton code here
+                units="imperial"                        	# either metric or imperial
+        #Open Weather Map URL do not change:
+                location="id=$id&APPID=$APPID&units=$units"
+                openweather="https://api.openweathermap.org/data/2.5/weather"
+	#retrives cacert to local directory 
+		curl --silent --remote-name --time-cond cacert.pem https://curl.haxx.se/ca/cacert.pem
+        #pulls variables from web site:
+                weather=$(curl --silent -m 6 "$openweather?$location" | sed -e 's/[{}]/''/g; s/,/\\n/g') # pulls raw json data list out as line items.
+        #Pulls temp from list of variables:
+		name=`echo -e $weather | grep name | cut -f2 -d: | sed 's/\.[^ ]*/ /g' | sed 's/\s*$//g' | sed 's/\"//g'`
+		description=`echo -e $weather | grep description | cut -f2 -d: | sed 's/\.[^ ]*/ /g' | sed 's/\s*$//g' | sed 's/\"//g'`
+		temp=`echo -e $weather | grep temp | cut -f3 -d: | sed 's/\.[^ ]*/ /g' | sed 's/\s*$//g'`
+		speed=`echo -e $weather | grep speed | cut -f3 -d: | sed 's/\.[^ ]*/ /g' | sed 's/\s*$//g'`
+		gust=`echo -e $weather | grep gust | cut -f2 -d: | sed 's/\.[^ ]*/ /g' | sed 's/\s*$//g'`
+		deg=`echo -e $weather | grep deg | cut -f2 -d: | sed 's/\.[^ ]*/ /g' | sed 's/\s*$//g'`
+		humidity=`echo -e $weather | grep humidity | cut -f2 -d: | sed 's/\.[^ ]*/ /g' | sed 's/\s*$//g'`
+		temp_max=`echo -e $weather | grep temp_max | cut -f2 -d: | sed 's/\.[^ ]*/ /g' | sed 's/\s*$//g'`
+		temp_min=`echo -e $weather | grep temp_min | cut -f2 -d: | sed 's/\.[^ ]*/ /g' | sed 's/\s*$//g'`
+		unix_sunrise=`echo -e $weather | grep sunrise | cut -f2 -d:`
+		srise=`date --date @$unix_sunrise +%T | cut -f1-2 -d":"`
+		unix_sunset=`echo -e $weather | grep sunset | cut -f2 -d:`
+		sset=`date --date @$unix_sunset +%T | cut -f1-2 -d":"`
+		echo -e "Time now `date +"%H:%M"`.\nCurrent weather for $name.\n$description.\nTemputre: $temp.\nWind at: $speed Gusting to: $gust.\nfrom Direction: $deg.\nHumitdty: $humidity.\nHigh for today: $temp_max.\nLow for today: $temp_min.\nSunrise at: $srise.\nSun sets at: $sset" | espeak --stdin -ven-sc+f4 -l 3
