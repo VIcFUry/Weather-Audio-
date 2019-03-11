@@ -3,14 +3,15 @@
         #Open Weather Map Access you will need to change:
                 APPID="dddddddddddddddddddddddddddddddd"	# Add your Key here
                 id="134567"                             	# Add your locaton code here
-                units="imperial"                        	# either metric or imperial
-        #Open Weather Map URL do not change:
+		units="imperial"                        	# either metric or imperial
+		cacert="cacert.pem"
+	#Open Weather Map URL do not change:
                 location="id=$id&APPID=$APPID&units=$units"
                 openweather="https://api.openweathermap.org/data/2.5/weather"
 	#retrives cacert to local directory 
 		curl --silent --remote-name --time-cond cacert.pem https://curl.haxx.se/ca/cacert.pem
         #pulls variables from web site:
-                weather=$(curl --silent -m 6 "$openweather?$location" | sed -e 's/[{}]/''/g; s/,/\\n/g') # pulls raw json data list out as line items.
+                weather=$(curl  --cacert $cacert --silent -m 6 "$openweather?$location" | sed -e 's/[{}]/''/g; s/,/\\n/g') # pulls raw json data list out as line items.
         #Pulls temp from list of variables:
 		name=`echo -e $weather | grep name | cut -f2 -d: | sed 's/\.[^ ]*/ /g' | sed 's/\s*$//g' | sed 's/\"//g'`
 		description=`echo -e $weather | grep description | cut -f2 -d: | sed 's/\.[^ ]*/ /g' | sed 's/\s*$//g' | sed 's/\"//g'`
